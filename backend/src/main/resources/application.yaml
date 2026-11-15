@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: backend
+
+  docker:
+    compose:
+      file: ../docker-compose.yaml
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    validate-migration-naming: true
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wildfire
+    username: wildfire
+    password: abc.123
+
+cwfis:
+  api:
+    base-url: "https://geoserver.cwfif.nrcan.gc.ca/geoserver/ows"
+    connect-timeout: 5s
+    read-timeout: 15s
+  sync-delay-ms: ${CWFIS_SYNC_DELAY_MS:3600000}
+  sync-initial-delay-ms: ${CWFIS_SYNC_INITIAL_DELAY_MS:10000}
+
+app:
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:5173}
+
+server:
+  compression:
+    enabled: true
+    mime-types: application/json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

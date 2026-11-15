@@ -1,0 +1,78 @@
+name: Backend CI
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+  pull_request:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Build and test Spring Boot
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      CORS_ALLOWED_ORIGIN: http://localhost:5173
+      CWFIS_SYNC_DELAY_MS: "3600000"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
+
+      # Testcontainers automatically starts an isolated
+      # PostgreSQL/PostGIS database using Docker.
+      # No external PostgreSQL service is required.
+
+      - name: Run Maven tests and JaCoCo
+        run: ./mvnw clean verify
+
+      # Upload coverage report even when tests fail.
+      - name: Upload JaCoCo report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-report
+          path: backend/target/site/jacoco/
+          retention-days: 14
+          if-no-files-found: warn
+
+      # Upload detailed test results for debugging.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/target/surefire-reports/
+          retention-days: 14
+          if-no-files-found: warn

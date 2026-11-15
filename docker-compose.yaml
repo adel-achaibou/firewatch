@@ -1,0 +1,29 @@
+name: firewatch
+
+services:
+  postgres:
+    image: postgis/postgis:18-3.6
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: wildfire
+      POSTGRES_USER: wildfire
+      POSTGRES_PASSWORD: abc.123
+
+    labels:
+      org.springframework.boot.service-connection: postgres
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

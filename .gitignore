@@ -1,0 +1,102 @@
+# ============================
+# Environment
+# ============================
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# ============================
+# Backend - Spring Boot / Maven
+# ============================
+**/target/
+**/build/
+**/HELP.md
+
+# ============================
+# Frontend - React / Vite
+# ============================
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# ============================
+# Logs
+# ============================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================
+# VS Code
+# ============================
+.vscode/*
+!.vscode/extensions.json
+
+# ============================
+# IntelliJ IDEA
+# ============================
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ============================
+# Eclipse / STS
+# ============================
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# ============================
+# NetBeans
+# ============================
+**/nbproject/private/
+**/nbbuild/
+**/nbdist/
+**/.nb-gradle/
+
+# ============================
+# Other Editor Files
+# ============================
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ============================
+# Operating Systems
+# ============================
+.DS_Store
+
+# Local application logs
+/logs/
+backend/logs/
+
+# ============================
+# Others
+# ============================
+/Plan.md
+/backend/cwfis-comparaison.txt
+/compareTo.txt
+backend/effective-pom.xml
+backend/effective-settings.xml
+backend/test-results.txt
+
+# ============================
+# Testing - Vitest / Playwright
+# ============================
+**/coverage/
+**/playwright-report/
+**/test-results/
+**/.nyc_output/
