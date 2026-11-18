@@ -16,7 +16,6 @@ export function useFires() {
 
     const activeRequest = useRef<AbortController | null>(null);
     const mounted = useRef(false);
-    const initialLoad = useRef(true);
 
     const loadFires = useCallback(async () => {
         if (!mounted.current || activeRequest.current) return;
@@ -118,7 +117,6 @@ export function useFires() {
                     activeRequest.current = null;
 
                     if (mounted.current && !controller.signal.aborted) {
-                        initialLoad.current = false;
                         setLoading(false);
                     }
                 }
