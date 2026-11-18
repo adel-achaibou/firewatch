@@ -25,7 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.RestClient;
 
 import com.firewatch.backend.IsolatedDatabaseTest;
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 import com.firewatch.backend.fire.dto.mappers.FireResponseMapper;
 import com.sun.net.httpserver.HttpServer;
 
@@ -251,7 +251,7 @@ class FireProcessusTest extends IsolatedDatabaseTest {
             ));
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> service.saveDetection()
         );
 
@@ -297,7 +297,7 @@ class FireProcessusTest extends IsolatedDatabaseTest {
             ));
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> service.saveDetection()
         );
 

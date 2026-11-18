@@ -10,20 +10,20 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.firewatch.backend.exceptions.CwfisFilteringException;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.exceptions.FireFilteringException;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 @Component
 public class FireFiltering {
 
-    public List<FireDetectionRequest> filter(List<FireDetectionRequest> fires, Instant syncTime) {
+    public List<FireRequest> filter(List<FireRequest> fires, Instant syncTime) {
 
-        Map<String, FireDetectionRequest> latestFires = new HashMap<>();
+        Map<String, FireRequest> latestFires = new HashMap<>();
 
-        for (FireDetectionRequest fire : fires) {
+        for (FireRequest fire : fires) {
 
             if (fire == null) {
-                throw new CwfisFilteringException("CWFIS returned a null fire record");
+                throw new FireFilteringException("CWFIS returned a null fire record");
             }
 
             // 1. Validate required fields
@@ -39,37 +39,37 @@ public class FireFiltering {
             );
 
             if (!areObligatoryRowsCorrect(obligatoryRows)) {
-                throw new CwfisFilteringException("Missing or blank required field");
+                throw new FireFilteringException("Missing or blank required field");
             }
 
             // 2. Validate coordinates
             if (!isLatitudeCorrect(fire.latitude())) {
-                throw new CwfisFilteringException("Invalid latitude: " + fire.latitude());
+                throw new FireFilteringException("Invalid latitude: " + fire.latitude());
             }
 
             if (!isLongitudeCorrect(fire.longitude())) {
-                throw new CwfisFilteringException("Invalid longitude: " + fire.longitude());
+                throw new FireFilteringException("Invalid longitude: " + fire.longitude());
             }
 
             // 3. Validate optional numeric fields
             if (!isFireSizeCorrect(fire.fireSize())) {
-                throw new CwfisFilteringException("Invalid fireSize: " + fire.fireSize());
+                throw new FireFilteringException("Invalid fireSize: " + fire.fireSize());
             }
 
             if (!isPercentContainedCorrect(fire.percentContained())) {
-                throw new CwfisFilteringException("Invalid percentContained: " + fire.percentContained());
+                throw new FireFilteringException("Invalid percentContained: " + fire.percentContained());
             }
 
             // 4. Validate record period
             if (!areRecordStartAndEndCorrect(fire.recordEnd(), fire.recordStart())) {
-                throw new CwfisFilteringException(
+                throw new FireFilteringException(
                     "Invalid record period. recordEnd must be greater than recordStart"
                 );
             }
 
             // 5. Validate the synchronization window
             if (!validatesRecordDates(fire.recordEnd(), fire.recordStart(), syncTime)) {
-                throw new CwfisFilteringException(
+                throw new FireFilteringException(
                     "Fire record is outside the requested synchronization window"
                 );
             }
@@ -78,7 +78,7 @@ public class FireFiltering {
             BigDecimal fireSize = fireSizeNegativeOne(fire.fireSize());
             BigDecimal percentContained = percentContainedNegativeOne(fire.percentContained());
 
-            FireDetectionRequest normalizedFire = new FireDetectionRequest(
+            FireRequest normalizedFire = new FireRequest(
                 fire.nationalFireId(),
                 fire.agencyFireId(),
                 fire.agencyCode(),
@@ -95,7 +95,7 @@ public class FireFiltering {
             );
 
             // 7. Keep the latest version, regardless of its status
-            FireDetectionRequest previous = latestFires.get(normalizedFire.nationalFireId());
+            FireRequest previous = latestFires.get(normalizedFire.nationalFireId());
 
             if (previous == null ||
                     normalizedFire.recordStart().isAfter(previous.recordStart())) {
@@ -107,9 +107,9 @@ public class FireFiltering {
         }
 
         // 8. Keep only active fires from their latest versions
-        List<FireDetectionRequest> activeFires = new ArrayList<>();
+        List<FireRequest> activeFires = new ArrayList<>();
 
-        for (FireDetectionRequest fire : latestFires.values()) {
+        for (FireRequest fire : latestFires.values()) {
             if (isFireActive(fire.stageOfControlStatus())) {
                 activeFires.add(fire);
             }

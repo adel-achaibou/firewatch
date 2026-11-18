@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Component;
 
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 @Component
 public class FireMapper {
@@ -20,11 +20,11 @@ public class FireMapper {
     private final GeometryFactory geometryFactory =
         new GeometryFactory(new PrecisionModel(), WGS84_SRID);
 
-    public List<Fire> toEntities(List<FireDetectionRequest> filteredFires, Instant syncTime) {
+    public List<Fire> toEntities(List<FireRequest> filteredFires, Instant syncTime) {
 
         List<Fire> fires = new ArrayList<>();
 
-        for (FireDetectionRequest filteredFire : filteredFires) {
+        for (FireRequest filteredFire : filteredFires) {
 
             Fire fireDetection = new Fire();
 

@@ -3,7 +3,7 @@ package com.firewatch.backend.fire.dto.mappers;
 import org.springframework.stereotype.Component;
 
 import com.firewatch.backend.fire.Fire;
-import com.firewatch.backend.fire.dto.responses.FireDetectionResponse;
+import com.firewatch.backend.fire.dto.responses.FireResponse;
 
 /**
  * Maps FireDetection entites to API reponse DTOs
@@ -11,8 +11,8 @@ import com.firewatch.backend.fire.dto.responses.FireDetectionResponse;
 @Component 
 public class FireResponseMapper {
     
-    public FireDetectionResponse toResponse(Fire fireDetection) {
-        return new FireDetectionResponse(
+    public FireResponse toResponse(Fire fireDetection) {
+        return new FireResponse(
             fireDetection.getNationalFireId(),
             fireDetection.getAgencyCode(),
             fireDetection.getLatitude(),

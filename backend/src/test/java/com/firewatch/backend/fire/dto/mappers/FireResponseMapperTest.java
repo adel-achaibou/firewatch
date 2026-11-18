@@ -9,7 +9,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import com.firewatch.backend.fire.Fire;
-import com.firewatch.backend.fire.dto.mappers.FireResponseMapper;
 
 class FireResponseMapperTest {
     private final FireResponseMapper mapper = new FireResponseMapper();

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.firewatch.backend.fire.dto.responses.FireDetectionResponse;
+import com.firewatch.backend.fire.dto.responses.FireResponse;
 
 @RestController 
 @RequestMapping("api/v1/fires")
@@ -23,12 +23,12 @@ public class FireController {
     }
 
     @GetMapping("/{nationalFireId}")
-    public ResponseEntity<FireDetectionResponse> getDetectionByNationalFireId(@PathVariable("nationalFireId") String id) {
+    public ResponseEntity<FireResponse> getDetectionByNationalFireId(@PathVariable("nationalFireId") String id) {
         return ResponseEntity.ok(cwfisService.getDetectionByNationalFireId(id));
     }
 
     @GetMapping()
-    public ResponseEntity<List<FireDetectionResponse>> getDetectionAll() {
+    public ResponseEntity<List<FireResponse>> getDetectionAll() {
         return ResponseEntity.ok()
         // Allow browsers and shared HTTP caches to reuse responses for up to 60 seconds.
             .cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePublic())

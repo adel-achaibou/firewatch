@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import com.firewatch.backend.exceptions.CwfisFilteringException;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.exceptions.FireFilteringException;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 class FireFilteringTest {
 
@@ -41,7 +41,7 @@ class FireFilteringTest {
         RECORD_END
     }
 
-    private FireDetectionRequest fire(
+    private FireRequest fire(
             String id,
             String status,
             Instant start,
@@ -51,7 +51,7 @@ class FireFilteringTest {
             BigDecimal size,
             BigDecimal contained) {
 
-        return new FireDetectionRequest(
+        return new FireRequest(
             id,
             id,
             "QC",
@@ -68,7 +68,7 @@ class FireFilteringTest {
         );
     }
 
-    private FireDetectionRequest validFire(String id, String status) {
+    private FireRequest validFire(String id, String status) {
         return fire(
             id, status, START, END,
             BigDecimal.valueOf(46),
@@ -78,13 +78,13 @@ class FireFilteringTest {
         );
     }
 
-    private FireDetectionRequest withRequiredField(
+    private FireRequest withRequiredField(
             RequiredField field,
             Object replacement) {
 
-        FireDetectionRequest valid = validFire("A", "OC");
+        FireRequest valid = validFire("A", "OC");
 
-        return new FireDetectionRequest(
+        return new FireRequest(
             field == RequiredField.NATIONAL_FIRE_ID
                 ? (String) replacement : valid.nationalFireId(),
 
@@ -120,7 +120,7 @@ class FireFilteringTest {
 
     @Test
     void acceptsActiveStatuses() {
-        List<FireDetectionRequest> result = filtering.filter(
+        List<FireRequest> result = filtering.filter(
             List.of(
                 validFire("A", "OC"),
                 validFire("B", "BH"),
@@ -134,7 +134,7 @@ class FireFilteringTest {
 
     @Test
     void excludesInactiveStatuses() {
-        List<FireDetectionRequest> result = filtering.filter(
+        List<FireRequest> result = filtering.filter(
             List.of(
                 validFire("A", "OUT"),
                 validFire("B", "UNKNOWN"),
@@ -149,19 +149,19 @@ class FireFilteringTest {
 
     @Test
     void keepsLatestVersionOfSameFire() {
-        FireDetectionRequest older = fire(
+        FireRequest older = fire(
             "A", "BH", START.minusSeconds(600), END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
-        FireDetectionRequest newer = fire(
+        FireRequest newer = fire(
             "A", "OC", START, END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             BigDecimal.TEN, BigDecimal.valueOf(50)
         );
 
-        List<FireDetectionRequest> result = filtering.filter(
+        List<FireRequest> result = filtering.filter(
             List.of(newer, older),
             SYNC_TIME
         );
@@ -173,15 +173,15 @@ class FireFilteringTest {
 
     @Test
     void excludesFireWhenLatestVersionIsOut() {
-        FireDetectionRequest older = fire(
+        FireRequest older = fire(
             "A", "OC", START.minusSeconds(600), END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
-        FireDetectionRequest newer = validFire("A", "OUT");
+        FireRequest newer = validFire("A", "OUT");
 
-        List<FireDetectionRequest> result = filtering.filter(
+        List<FireRequest> result = filtering.filter(
             List.of(older, newer),
             SYNC_TIME
         );
@@ -191,15 +191,15 @@ class FireFilteringTest {
 
     @Test
     void keepsFireWhenLatestVersionIsActive() {
-        FireDetectionRequest older = fire(
+        FireRequest older = fire(
             "A", "OUT", START.minusSeconds(600), END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
-        FireDetectionRequest newer = validFire("A", "OC");
+        FireRequest newer = validFire("A", "OC");
 
-        List<FireDetectionRequest> result = filtering.filter(
+        List<FireRequest> result = filtering.filter(
             List.of(older, newer),
             SYNC_TIME
         );
@@ -210,14 +210,14 @@ class FireFilteringTest {
 
     @Test
     void normalizesNegativeOneToNull() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             BigDecimal.valueOf(-1),
             BigDecimal.valueOf(-1)
         );
 
-        FireDetectionRequest result =
+        FireRequest result =
             filtering.filter(List.of(input), SYNC_TIME).getFirst();
 
         assertNull(result.fireSize());
@@ -226,13 +226,13 @@ class FireFilteringTest {
 
     @Test
     void acceptsNullOptionalNumbers() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.valueOf(46), BigDecimal.valueOf(-72),
             null, null
         );
 
-        FireDetectionRequest result =
+        FireRequest result =
             filtering.filter(List.of(input), SYNC_TIME).getFirst();
 
         assertNull(result.fireSize());
@@ -241,7 +241,7 @@ class FireFilteringTest {
 
     @Test
     void acceptsBoundaryCoordinates() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.valueOf(90),
             BigDecimal.valueOf(-180),
@@ -257,91 +257,91 @@ class FireFilteringTest {
 
     @Test
     void rejectsInvalidLatitude() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.valueOf(91), BigDecimal.ZERO,
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsInvalidLongitude() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.ZERO, BigDecimal.valueOf(-181),
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsNegativeFireSizeOtherThanMinusOne() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.valueOf(-2), BigDecimal.ZERO
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsPercentContainedAboveHundred() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.TEN, BigDecimal.valueOf(101)
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsInvalidNegativePercentContained() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", START, END,
             BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.TEN, BigDecimal.valueOf(-2)
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsInvalidRecordPeriod() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC", END, START,
             BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.TEN, BigDecimal.ZERO
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsRecordOutsideSyncWindow() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC",
             SYNC_TIME.plusSeconds(60),
             SYNC_TIME.plusSeconds(3600),
@@ -350,14 +350,14 @@ class FireFilteringTest {
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
 
     @Test
     void rejectsRecordAtExclusiveEndBoundary() {
-        FireDetectionRequest input = fire(
+        FireRequest input = fire(
             "A", "OC",
             START, SYNC_TIME,
             BigDecimal.ZERO, BigDecimal.ZERO,
@@ -365,7 +365,7 @@ class FireFilteringTest {
         );
 
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME)
         );
     }
@@ -373,9 +373,9 @@ class FireFilteringTest {
     @Test
     void rejectsNullRecord() {
         assertThrows(
-            CwfisFilteringException.class,
+            FireFilteringException.class,
             () -> filtering.filter(
-                Arrays.asList((FireDetectionRequest) null),
+                Arrays.asList((FireRequest) null),
                 SYNC_TIME
             )
         );
@@ -386,11 +386,11 @@ class FireFilteringTest {
     void rejectsEachMissingRequiredFieldIndependently(
             RequiredField field) {
 
-        FireDetectionRequest input =
+        FireRequest input =
             withRequiredField(field, null);
 
-        CwfisFilteringException error = assertThrows(
-            CwfisFilteringException.class,
+        FireFilteringException error = assertThrows(
+            FireFilteringException.class,
             () -> filtering.filter(List.of(input), SYNC_TIME),
             "Expected rejection when " + field + " is null"
         );
@@ -412,11 +412,11 @@ class FireFilteringTest {
             RequiredField field) {
 
         for (String blank : List.of("", " ", "   ", "\t")) {
-            FireDetectionRequest input =
+            FireRequest input =
                 withRequiredField(field, blank);
 
-            CwfisFilteringException error = assertThrows(
-                CwfisFilteringException.class,
+            FireFilteringException error = assertThrows(
+                FireFilteringException.class,
                 () -> filtering.filter(List.of(input), SYNC_TIME),
                 "Expected rejection for blank " + field
             );
@@ -437,6 +437,6 @@ class FireFilteringTest {
 
     @Test
     void rejectsNullRecordInsteadOfSilentlyDroppingIt() {
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(java.util.Arrays.asList((com.firewatch.backend.fire.dto.requests.FireDetectionRequest) null), Instant.now()));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(java.util.Arrays.asList((com.firewatch.backend.fire.dto.requests.FireRequest) null), Instant.now()));
     }
 }

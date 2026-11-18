@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 import com.firewatch.backend.exceptions.FireNotFoundException;
 import com.firewatch.backend.fire.dto.mappers.FireResponseMapper;
-import com.firewatch.backend.fire.dto.requests.CwfisParseResult;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
-import com.firewatch.backend.fire.dto.responses.FireDetectionResponse;
+import com.firewatch.backend.fire.dto.requests.FireParseResult;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
+import com.firewatch.backend.fire.dto.responses.FireResponse;
 
 class FireServiceTest {
 
@@ -53,24 +53,24 @@ class FireServiceTest {
 
     @Test
     void passesSameSyncTimeAndCorrectDataThroughEntirePipeline() {
-        FireDetectionRequest rawFire =
-            mock(FireDetectionRequest.class);
+        FireRequest rawFire =
+            mock(FireRequest.class);
 
-        FireDetectionRequest filteredFire =
-            mock(FireDetectionRequest.class);
+        FireRequest filteredFire =
+            mock(FireRequest.class);
 
         Fire mappedFire = new Fire();
 
-        List<FireDetectionRequest> rawFires =
+        List<FireRequest> rawFires =
             List.of(rawFire);
 
-        List<FireDetectionRequest> filteredFires =
+        List<FireRequest> filteredFires =
             List.of(filteredFire);
 
         List<Fire> mappedFires =
             List.of(mappedFire);
 
-        CwfisParseResult result = new CwfisParseResult(
+        FireParseResult result = new FireParseResult(
             rawFires, 1, 1, 1, 0
         );
 
@@ -153,11 +153,11 @@ class FireServiceTest {
 
     @Test
     void reconcilesEmptySnapshotWithSameSyncTime() {
-        List<FireDetectionRequest> emptyRequests = List.of();
+        List<FireRequest> emptyRequests = List.of();
         List<Fire> emptyEntities = List.of();
 
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 emptyRequests, 0, 0, 0, 0
             ));
 
@@ -198,16 +198,16 @@ class FireServiceTest {
 
     @Test
     void abortsWhenParsingRejectedRecords() {
-        FireDetectionRequest request =
-            mock(FireDetectionRequest.class);
+        FireRequest request =
+            mock(FireRequest.class);
 
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 List.of(request), 2, 2, 2, 1
             ));
 
-        CwfisIngestionException error = assertThrows(
-            CwfisIngestionException.class,
+        FireIngestionException error = assertThrows(
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -226,7 +226,7 @@ class FireServiceTest {
             .thenReturn(null);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -236,12 +236,12 @@ class FireServiceTest {
     @Test
     void abortsWhenParserReturnsNullFireList() {
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 null, 0, 0, 0, 0
             ));
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -250,10 +250,10 @@ class FireServiceTest {
 
     @Test
     void abortsWhenFilteringReturnsNull() {
-        List<FireDetectionRequest> raw = List.of();
+        List<FireRequest> raw = List.of();
 
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 raw, 0, 0, 0, 0
             ));
 
@@ -263,7 +263,7 @@ class FireServiceTest {
         )).thenReturn(null);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -278,10 +278,10 @@ class FireServiceTest {
 
     @Test
     void abortsWhenMappingReturnsNull() {
-        List<FireDetectionRequest> raw = List.of();
+        List<FireRequest> raw = List.of();
 
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 raw, 0, 0, 0, 0
             ));
 
@@ -296,7 +296,7 @@ class FireServiceTest {
         )).thenReturn(null);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -312,13 +312,13 @@ class FireServiceTest {
 
     @Test
     void abortsWhenMappedCountDoesNotMatch() {
-        FireDetectionRequest request =
-            mock(FireDetectionRequest.class);
+        FireRequest request =
+            mock(FireRequest.class);
 
-        List<FireDetectionRequest> raw = List.of(request);
+        List<FireRequest> raw = List.of(request);
 
         when(client.fetchDetections(any(Instant.class)))
-            .thenReturn(new CwfisParseResult(
+            .thenReturn(new FireParseResult(
                 raw, 1, 1, 1, 0
             ));
 
@@ -333,7 +333,7 @@ class FireServiceTest {
         )).thenReturn(List.of());
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -349,8 +349,8 @@ class FireServiceTest {
 
     @Test
     void propagatesExistingIngestionExceptionWithoutWrappingAgain() {
-        CwfisIngestionException original =
-            new CwfisIngestionException(
+        FireIngestionException original =
+            new FireIngestionException(
                 "CWFIS unavailable",
                 new IllegalStateException("Service unavailable")
             );
@@ -358,8 +358,8 @@ class FireServiceTest {
         when(client.fetchDetections(any(Instant.class)))
             .thenThrow(original);
 
-        CwfisIngestionException actual = assertThrows(
-            CwfisIngestionException.class,
+        FireIngestionException actual = assertThrows(
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -375,8 +375,8 @@ class FireServiceTest {
         when(client.fetchDetections(any(Instant.class)))
             .thenThrow(original);
 
-        CwfisIngestionException error = assertThrows(
-            CwfisIngestionException.class,
+        FireIngestionException error = assertThrows(
+            FireIngestionException.class,
             service::saveDetection
         );
 
@@ -394,8 +394,8 @@ class FireServiceTest {
         Fire fire = new Fire();
         fire.setNationalFireId("FIRE-001");
 
-        FireDetectionResponse response =
-            mock(FireDetectionResponse.class);
+        FireResponse response =
+            mock(FireResponse.class);
 
         when(repository.findById("FIRE-001"))
             .thenReturn(Optional.of(fire));
@@ -435,11 +435,11 @@ class FireServiceTest {
         Fire second = new Fire();
         second.setNationalFireId("FIRE-B");
 
-        FireDetectionResponse firstResponse =
-            mock(FireDetectionResponse.class);
+        FireResponse firstResponse =
+            mock(FireResponse.class);
 
-        FireDetectionResponse secondResponse =
-            mock(FireDetectionResponse.class);
+        FireResponse secondResponse =
+            mock(FireResponse.class);
 
         when(repository.findAllByIsActiveTrue())
             .thenReturn(List.of(first, second));

@@ -11,16 +11,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.firewatch.backend.exceptions.CwfisFilteringException;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.exceptions.FireFilteringException;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 class FilteringBoundaryTest {
     private static final Instant NOW = Instant.parse("2026-11-05T12:00:00Z");
     private final FireFiltering filtering = new FireFiltering();
 
-    private FireDetectionRequest fire(String id, String status, BigDecimal lat, BigDecimal lon,
+    private FireRequest fire(String id, String status, BigDecimal lat, BigDecimal lon,
                                       BigDecimal size, BigDecimal contained, Instant start, Instant end) {
-        return new FireDetectionRequest(id, id, "QC", null, lat, lon, status,
+        return new FireRequest(id, id, "QC", null, lat, lon, status,
             size, null, contained, null, start, end);
     }
 
@@ -41,32 +41,32 @@ class FilteringBoundaryTest {
     @Test void rejectsOutOfRangeCoordinates() {
         for (BigDecimal latitude : List.of(BigDecimal.valueOf(-91), BigDecimal.valueOf(91))) {
             var f = fire("F1", "OC", latitude, BigDecimal.ZERO, null, null, NOW.minusSeconds(1), NOW.plusSeconds(1));
-            assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(f), NOW));
+            assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(f), NOW));
         }
         var f = fire("F1", "OC", BigDecimal.ZERO, BigDecimal.valueOf(181), null, null, NOW.minusSeconds(1), NOW.plusSeconds(1));
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(f), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(f), NOW));
     }
 
     @Test void rejectsInvalidOptionalNumbers() {
         var f = fire("F1", "OC", BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.valueOf(-2), null, NOW.minusSeconds(1), NOW.plusSeconds(1));
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(f), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(f), NOW));
         var g = fire("F1", "OC", BigDecimal.ZERO, BigDecimal.ZERO,
             null, BigDecimal.valueOf(101), NOW.minusSeconds(1), NOW.plusSeconds(1));
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(g), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(g), NOW));
     }
 
     @Test void rejectsNullAndBlankRequiredRecords() {
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(java.util.Arrays.asList((FireDetectionRequest) null), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(java.util.Arrays.asList((FireRequest) null), NOW));
         var f = fire(" ", "OC", BigDecimal.ZERO, BigDecimal.ZERO, null, null, NOW.minusSeconds(1), NOW.plusSeconds(1));
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(f), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(f), NOW));
     }
 
     @Test void rejectsInvalidTimeWindow() {
         var f = fire("F1", "OC", BigDecimal.ZERO, BigDecimal.ZERO, null, null, NOW, NOW);
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(f), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(f), NOW));
         var g = fire("F1", "OC", BigDecimal.ZERO, BigDecimal.ZERO, null, null, NOW.plusSeconds(1), NOW.plusSeconds(60));
-        assertThrows(CwfisFilteringException.class, () -> filtering.filter(List.of(g), NOW));
+        assertThrows(FireFilteringException.class, () -> filtering.filter(List.of(g), NOW));
     }
 
     @Test void ignoresInactiveStatuses() {

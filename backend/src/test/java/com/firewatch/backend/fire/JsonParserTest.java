@@ -12,9 +12,9 @@ import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
 
-import com.firewatch.backend.exceptions.CwfisParsingException;
-import com.firewatch.backend.fire.dto.requests.CwfisParseResult;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.exceptions.FireParsingException;
+import com.firewatch.backend.fire.dto.requests.FireParseResult;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -81,7 +81,7 @@ class JsonParserTest {
 
     @Test
     void acceptsConsistentEmptySnapshot() {
-        CwfisParseResult result =
+        FireParseResult result =
             parser.parse(response("[]", 0, 0, 0));
 
         assertNotNull(result);
@@ -101,7 +101,7 @@ class JsonParserTest {
             1, 1, 1
         );
 
-        CwfisParseResult result = parser.parse(json);
+        FireParseResult result = parser.parse(json);
 
         assertEquals(1, result.numberMatched());
         assertEquals(1, result.numberReturned());
@@ -109,7 +109,7 @@ class JsonParserTest {
         assertEquals(0, result.rejectedCount());
         assertEquals(1, result.fires().size());
 
-        FireDetectionRequest fire = result.fires().getFirst();
+        FireRequest fire = result.fires().getFirst();
 
         assertAll(
             () -> assertEquals(
@@ -172,14 +172,14 @@ class JsonParserTest {
             }
             """;
 
-        CwfisParseResult result = parser.parse(
+        FireParseResult result = parser.parse(
             response("[" + feature(properties) + "]", 1, 1, 1)
         );
 
         assertEquals(0, result.rejectedCount());
         assertEquals(1, result.fires().size());
 
-        FireDetectionRequest fire = result.fires().getFirst();
+        FireRequest fire = result.fires().getFirst();
 
         assertEquals("QC-MINIMAL", fire.nationalFireId());
         assertEquals("UC", fire.stageOfControlStatus());
@@ -201,7 +201,7 @@ class JsonParserTest {
             "\"hello\""
         }) {
             assertThrows(
-                CwfisParsingException.class,
+                FireParsingException.class,
                 () -> parser.parse(json),
                 json
             );
@@ -216,7 +216,7 @@ class JsonParserTest {
             "{\"features\":{}}"
         }) {
             assertThrows(
-                CwfisParsingException.class,
+                FireParsingException.class,
                 () -> parser.parse(json),
                 json
             );
@@ -245,7 +245,7 @@ class JsonParserTest {
             """
         }) {
             assertThrows(
-                CwfisParsingException.class,
+                FireParsingException.class,
                 () -> parser.parse(json),
                 json
             );
@@ -263,7 +263,7 @@ class JsonParserTest {
             response("[]", 0, 0, -1)
         }) {
             assertThrows(
-                CwfisParsingException.class,
+                FireParsingException.class,
                 () -> parser.parse(json),
                 json
             );
@@ -281,7 +281,7 @@ class JsonParserTest {
             ]
             """;
 
-        CwfisParseResult result =
+        FireParseResult result =
             parser.parse(response(features, 4, 4, 4));
 
         assertEquals(4, result.numberMatched());
@@ -305,7 +305,7 @@ class JsonParserTest {
             + feature(invalid)
             + "]";
 
-        CwfisParseResult result =
+        FireParseResult result =
             parser.parse(response(features, 2, 2, 2));
 
         assertEquals(2, result.numberMatched());
@@ -334,7 +334,7 @@ class JsonParserTest {
             + feature(invalid)
             + "]";
 
-        CwfisParseResult result =
+        FireParseResult result =
             parser.parse(response(features, 2, 2, 2));
 
         assertEquals(2, result.numberMatched());
@@ -344,7 +344,7 @@ class JsonParserTest {
         assertEquals(1, result.rejectedCount());
         assertEquals(1, result.fires().size());
 
-        FireDetectionRequest valid =
+        FireRequest valid =
             result.fires().getFirst();
 
         assertDecimal("46.123456", valid.latitude());
@@ -359,7 +359,7 @@ class JsonParserTest {
             + "{\"type\":\"Feature\",\"properties\":null}"
             + "]";
 
-        CwfisParseResult result =
+        FireParseResult result =
             parser.parse(response(features, 2, 2, 2));
 
         assertEquals(2, result.numberMatched());

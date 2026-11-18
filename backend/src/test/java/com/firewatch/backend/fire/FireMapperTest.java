@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 class FireMapperTest {
 
@@ -22,8 +22,8 @@ class FireMapperTest {
     private static final Instant SYNC_TIME =
         Instant.parse("2026-11-05T12:00:00Z");
 
-    private FireDetectionRequest fire(String id) {
-        return new FireDetectionRequest(
+    private FireRequest fire(String id) {
+        return new FireRequest(
             id,
             "AGENCY-001",
             "QC",
@@ -42,7 +42,7 @@ class FireMapperTest {
 
     @Test
     void mapsAllFieldsCorrectly() {
-        FireDetectionRequest request = fire("FIRE-001");
+        FireRequest request = fire("FIRE-001");
 
         Fire entity =
             mapper.toEntities(List.of(request), SYNC_TIME).get(0);
@@ -167,7 +167,7 @@ class FireMapperTest {
 
     @Test
     void preservesNullOptionalFields() {
-        FireDetectionRequest request = new FireDetectionRequest(
+        FireRequest request = new FireRequest(
             "A",
             "AGENCY-001",
             "QC",

@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.firewatch.backend.IsolatedDatabaseTest;
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 
 import jakarta.persistence.EntityManager;
 
@@ -139,7 +139,7 @@ class ReconciliationIntegrationTest extends IsolatedDatabaseTest {
         assertActive(MISSING, false);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> reconcileWithoutMissing(T0.plusSeconds(1200))
         );
 
@@ -154,7 +154,7 @@ class ReconciliationIntegrationTest extends IsolatedDatabaseTest {
         assertActive(MISSING, false);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> reconcileWithoutMissing(at)
         );
 

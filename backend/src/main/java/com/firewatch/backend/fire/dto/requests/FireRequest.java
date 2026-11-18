@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 // DTO for data received from the CWFIS API
 
-public record FireDetectionRequest (
+public record FireRequest (
     
     @JsonProperty("national_fire_id")
     String nationalFireId,

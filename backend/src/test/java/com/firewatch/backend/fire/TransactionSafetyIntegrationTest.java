@@ -26,7 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.firewatch.backend.IsolatedDatabaseTest;
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 
 @SpringBootTest
 class TransactionSafetyIntegrationTest
@@ -231,7 +231,7 @@ class TransactionSafetyIntegrationTest
                 Instant updated = T0.plusSeconds(1800);
 
                 assertThrows(
-                    CwfisIngestionException.class,
+                    FireIngestionException.class,
                     () -> service.reconcile(
                         List.of(fire(ID, updated, "UC")),
                         updated

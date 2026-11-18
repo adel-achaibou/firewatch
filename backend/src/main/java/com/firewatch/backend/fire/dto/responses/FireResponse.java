@@ -3,7 +3,7 @@ package com.firewatch.backend.fire.dto.responses;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record FireDetectionResponse(
+public record FireResponse(
     String nationalFireId,
     String agencyCode,
     BigDecimal latitude,

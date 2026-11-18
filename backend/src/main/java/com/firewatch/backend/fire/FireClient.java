@@ -16,8 +16,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.firewatch.backend.exceptions.CwfisFetchException;
-import com.firewatch.backend.fire.dto.requests.CwfisParseResult;
+import com.firewatch.backend.exceptions.FireFetchException;
+import com.firewatch.backend.fire.dto.requests.FireParseResult;
 
 @Component
 public class FireClient {
@@ -91,19 +91,19 @@ public class FireClient {
             );
         }
         catch (RestClientException error) {
-            throw new CwfisFetchException(
+            throw new FireFetchException(
                 "Failed to fetch data from CWFIS", error
             );
         }
     }
 
     // Fetch and parse CWFIS data with completeness metadata
-    public CwfisParseResult fetchDetections(Instant syncTime) {
+    public FireParseResult fetchDetections(Instant syncTime) {
 
         String json = fetchRawDetections(syncTime);
 
         if (json == null || json.isBlank()) {
-            throw new CwfisFetchException(
+            throw new FireFetchException(
                 "CWFIS returned an empty HTTP response"
             );
         }

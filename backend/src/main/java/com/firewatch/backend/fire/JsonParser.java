@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.firewatch.backend.exceptions.CwfisParsingException;
-import com.firewatch.backend.fire.dto.requests.CwfisParseResult;
-import com.firewatch.backend.fire.dto.requests.FireDetectionRequest;
+import com.firewatch.backend.exceptions.FireParsingException;
+import com.firewatch.backend.fire.dto.requests.FireParseResult;
+import com.firewatch.backend.fire.dto.requests.FireRequest;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -25,28 +25,28 @@ public class JsonParser {
         this.objectMapper = objectMapper;
     }
 
-    public CwfisParseResult parse(String json) {
+    public FireParseResult parse(String json) {
         JsonNode root;
 
         try {
             root = objectMapper.readTree(json);
         }
         catch (JacksonException error) {
-            throw new CwfisParsingException(
+            throw new FireParsingException(
                 "Failed to parse CWFIS JSON response", error
             );
         }
 
         // Validate JSON root
         if (root == null || !root.isObject()) {
-            throw new CwfisParsingException("Invalid CWFIS JSON root");
+            throw new FireParsingException("Invalid CWFIS JSON root");
         }
 
         JsonNode features = root.get("features");
 
         // Validate features array
         if (features == null || !features.isArray()) {
-            throw new CwfisParsingException(
+            throw new FireParsingException(
                 "Missing or invalid 'features' array in CWFIS response"
             );
         }
@@ -60,7 +60,7 @@ public class JsonParser {
         if (matchedNode == null || !matchedNode.isIntegralNumber()
                 || returnedNode == null || !returnedNode.isIntegralNumber()
                 || totalNode == null || !totalNode.isIntegralNumber()) {
-            throw new CwfisParsingException(
+            throw new FireParsingException(
                 "Missing or invalid CWFIS metadata"
             );
         }
@@ -74,12 +74,12 @@ public class JsonParser {
                 || numberMatched != numberReturned
                 || numberReturned != features.size()
                 || totalFeatures != numberMatched) {
-            throw new CwfisParsingException(
+            throw new FireParsingException(
                 "Incomplete or inconsistent CWFIS response"
             );
         }
 
-        List<FireDetectionRequest> fires = new ArrayList<>();
+        List<FireRequest> fires = new ArrayList<>();
         int rejectedCount = 0;
 
         for (JsonNode feature : features) {
@@ -92,8 +92,8 @@ public class JsonParser {
                     continue;
                 }
 
-                FireDetectionRequest fire = objectMapper.treeToValue(
-                    properties, FireDetectionRequest.class
+                FireRequest fire = objectMapper.treeToValue(
+                    properties, FireRequest.class
                 );
 
                 if (fire == null) {
@@ -113,7 +113,7 @@ public class JsonParser {
             }
         }
 
-        return new CwfisParseResult(
+        return new FireParseResult(
             fires,
             numberMatched,
             numberReturned,

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -90,7 +90,7 @@ class PersistenceServiceTest {
         when(repository.tryAcquireSyncLock()).thenReturn(false);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> service.reconcile(List.of(), SYNC_TIME)
         );
 
@@ -105,7 +105,7 @@ class PersistenceServiceTest {
             .thenReturn(SYNC_TIME.plusSeconds(1));
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> service.reconcile(List.of(), SYNC_TIME)
         );
 
@@ -120,7 +120,7 @@ class PersistenceServiceTest {
             .thenReturn(SYNC_TIME);
 
         assertThrows(
-            CwfisIngestionException.class,
+            FireIngestionException.class,
             () -> service.reconcile(List.of(), SYNC_TIME)
         );
 

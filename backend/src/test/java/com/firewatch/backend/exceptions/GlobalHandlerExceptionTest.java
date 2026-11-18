@@ -31,8 +31,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void returns500ForIngestionFailure() {
-        CwfisIngestionException error =
-            new CwfisIngestionException(
+        FireIngestionException error =
+            new FireIngestionException(
                 "CWFIS unavailable",
                 new IllegalStateException("Connection failed")
             );

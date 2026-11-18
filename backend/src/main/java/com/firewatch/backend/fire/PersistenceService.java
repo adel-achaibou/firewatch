@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.firewatch.backend.exceptions.CwfisIngestionException;
+import com.firewatch.backend.exceptions.FireIngestionException;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class PersistenceService {
 
         // Prevent concurrent synchronizations
         if (!repository.tryAcquireSyncLock()) {
-            throw new CwfisIngestionException("Concurrent CWFIS synchronization", new IllegalStateException("Sync lock busy"));
+            throw new FireIngestionException("Concurrent CWFIS synchronization", new IllegalStateException("Sync lock busy"));
         }
 
         // Read the last applied reconciliation.
@@ -43,7 +43,7 @@ public class PersistenceService {
 
         // Reject outdated or repeated snapshots
         if (latest != null && !syncTime.isAfter(latest)) {
-            throw new CwfisIngestionException("Stale CWFIS snapshot", new IllegalStateException("A newer snapshot has already been persisted"));
+            throw new FireIngestionException("Stale CWFIS snapshot", new IllegalStateException("A newer snapshot has already been persisted"));
         }
 
         // Save active fire detections

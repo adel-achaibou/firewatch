@@ -34,8 +34,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 
-import com.firewatch.backend.exceptions.CwfisFetchException;
-import com.firewatch.backend.fire.dto.requests.CwfisParseResult;
+import com.firewatch.backend.exceptions.FireFetchException;
+import com.firewatch.backend.fire.dto.requests.FireParseResult;
 import com.sun.net.httpserver.HttpServer;
 
 class FireClientTest {
@@ -246,8 +246,8 @@ class FireClientTest {
         String json = "{\"features\":[]}";
         respond(200, json);
 
-        CwfisParseResult expected =
-            new CwfisParseResult(List.of(), 0, 0, 0, 0);
+        FireParseResult expected =
+            new FireParseResult(List.of(), 0, 0, 0, 0);
 
         when(parser.parse(json)).thenReturn(expected);
 
@@ -262,7 +262,7 @@ class FireClientTest {
         respond(200, "   ");
 
         assertThrows(
-            CwfisFetchException.class,
+            FireFetchException.class,
             () -> client.fetchDetections(SYNC_TIME)
         );
 
@@ -275,7 +275,7 @@ class FireClientTest {
         respond(404, "Not found");
 
         assertThrows(
-            CwfisFetchException.class,
+            FireFetchException.class,
             () -> client.fetchRawDetections(SYNC_TIME)
         );
 
@@ -287,7 +287,7 @@ class FireClientTest {
         respond(400, "Bad request");
 
         assertThrows(
-            CwfisFetchException.class,
+            FireFetchException.class,
             () -> client.fetchRawDetections(SYNC_TIME)
         );
 
@@ -313,8 +313,8 @@ class FireClientTest {
     void failsAfterRetryAttemptsAreExhausted() {
         respond(500, "Server error");
 
-        CwfisFetchException error = assertThrows(
-            CwfisFetchException.class,
+        FireFetchException error = assertThrows(
+            FireFetchException.class,
             () -> client.fetchRawDetections(SYNC_TIME)
         );
 
@@ -356,8 +356,8 @@ class FireClientTest {
         });
 
         try {
-            CwfisFetchException error = assertThrows(
-                CwfisFetchException.class,
+            FireFetchException error = assertThrows(
+                FireFetchException.class,
                 () -> client.fetchRawDetections(SYNC_TIME)
             );
 

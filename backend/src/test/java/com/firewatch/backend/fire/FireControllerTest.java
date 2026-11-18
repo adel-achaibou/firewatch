@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.firewatch.backend.exceptions.FireNotFoundException;
 import com.firewatch.backend.exceptions.GlobalExceptionHandler;
-import com.firewatch.backend.fire.dto.responses.FireDetectionResponse;
+import com.firewatch.backend.fire.dto.responses.FireResponse;
 
 class FireControllerTest {
 
@@ -41,8 +41,8 @@ class FireControllerTest {
             .build();
     }
 
-    private FireDetectionResponse createFire() {
-        return new FireDetectionResponse(
+    private FireResponse createFire() {
+        return new FireResponse(
             "FIRE-001",
             "QC",
             new BigDecimal("50.123"),

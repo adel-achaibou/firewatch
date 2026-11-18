@@ -1,4 +1,3 @@
-
 package com.firewatch.backend.exceptions;
 
 import org.slf4j.Logger;
@@ -28,9 +27,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
-    @ExceptionHandler(CwfisIngestionException.class)
+    @ExceptionHandler(FireIngestionException.class)
     public ResponseEntity<ProblemDetail> handleCwfisIngestionException(
-            CwfisIngestionException error) {
+            FireIngestionException error) {
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
