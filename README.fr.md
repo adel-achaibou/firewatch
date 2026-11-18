@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+**Projet portfolio, pas adapté pour une mise en production.**
+
 FireWatch est une application web pour explorer les incendies actifs au Canada. Elle affiche leur emplacement, leur état de contrôle, leur superficie et leur pourcentage de confinement sur une carte interactive, à partir des données du Système canadien d’information sur les feux de végétation (CWFIS).
 
 ![FireWatch — carte interactive des incendies au Canada](FireWatchFR.png)

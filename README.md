@@ -2,6 +2,8 @@
 
 [Français](README.fr.md)
 
+**Portfolio project, not production-hardened.**
+
 FireWatch is a web application for exploring active wildfires across Canada. It displays wildfire locations, control status, size and containment information on an interactive map, using data from the Canadian Wildland Fire Information System (CWFIS).
 
 ![FireWatch — interactive wildfire map of Canada](FireWatchEN.png)
