@@ -60,7 +60,7 @@ jobs:
       # Upload coverage report even when tests fail.
       - name: Upload JaCoCo report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-jacoco-report
           path: backend/target/site/jacoco/
@@ -70,7 +70,7 @@ jobs:
       # Upload detailed test results for debugging.
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-results
           path: backend/target/surefire-reports/
